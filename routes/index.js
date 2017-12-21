@@ -4,6 +4,9 @@ const _ = require('lodash');
 
 router.post('/createGame', (req,res) => {
   let {rows, columns, mines} = req.body
+  if(mines > rows*columns){
+    res.send("There should be less mines than tiles.")
+  }
   let board = createBoard(rows, columns);
   let minedBoard = fillBoard(mines,board,rows,columns);
   let fullBoard = fillCount(minedBoard,rows,columns);
@@ -57,14 +60,14 @@ let fillCount = (board,rows,columns) => {
             }
             else{
               try {
-                console.log(board);
-                console.log("i+x",i+x);
-                console.log("j+y",j+y);
+                // console.log(board);
+                // console.log("i+x",i+x);
+                // console.log("j+y",j+y);
                 if(board[i+x][j+y] === '*'){
                   count++;
                 }
               } catch (e) {
-                console.log("error: ",e);
+                // console.log("error: ",e);
               }
             }
           }
