@@ -1,28 +1,57 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
+import axios from 'axios';
 import './App.css';
+import Row from './Row'
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
   componentDidMount(){
-    console.log("If proxy works, should return users object:");
-    fetch('/users')
-     .then(res => res.json())
-     .then(users => console.log({ users }));
+    this.createNewGame();
+  }
+
+  createNewGame = async () => {
+    let newGame = await createGame();
+    this.setState({game:newGame.data});
   }
 
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+        <button onClick={() => this.createNewGame()}>Button</button>
+
+        <div className="game">
+          <div className="game-board">
+          {this.state.game &&
+            this.state.game.map((row) => {
+              return <Row data={row}></Row>
+            })
+          }
+          </div>
+        </div>
       </div>
     );
   }
+}
+
+
+
+let createGame = () => {
+  return new Promise(
+    (resolve, reject) => {
+      axios.post('/createGame',{
+        rows:5,
+        columns:5,
+        mines:10
+      }).then((res) => {
+         resolve(res);
+      })
+    }
+  )
 }
 
 export default App;
