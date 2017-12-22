@@ -12,8 +12,8 @@ class Row extends Component {
     return (
       <ol>
         {
-          this.props.data.map((el) => {
-            return <Square value={el}></Square>
+          this.props.data.map((el,idx) => {
+            return <Square value={el} key={idx}></Square>
           })
         }
       </ol>
