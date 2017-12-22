@@ -60,9 +60,6 @@ let fillCount = (board,rows,columns) => {
             }
             else{
               try {
-                // console.log(board);
-                // console.log("i+x",i+x);
-                // console.log("j+y",j+y);
                 if(board[i+x][j+y] === '*'){
                   count++;
                 }
