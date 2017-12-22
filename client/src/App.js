@@ -2,16 +2,22 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import './App.css';
 import Row from './Row'
+import InputForm from './InputForm'
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      click:{
+        x:null,
+        y:null
+      },
       gameConfig: {
-        rows:8,
-        columns:8,
-        mines:5
-      }
+        rows:4,
+        columns:4,
+        mines:4
+      },
+      once:false
     };
     this.handleRowChange = this.handleRowChange.bind(this);
     this.handleColumnChange = this.handleColumnChange.bind(this);
@@ -45,6 +51,7 @@ class App extends Component {
   }
 
   handleClick(row,col,game,visibleGame,gameConfig,createNewGame) {
+    console.log(row,col);
     setTimeout(function () {
 
       if(game[row][col]=== '*'){
@@ -61,49 +68,45 @@ class App extends Component {
     console.log("modifiedRow",modifiedRow);
     this.setState((state)=>({
       ...this.state,
+      click:{
+        x:row,
+        y:col
+      },
       visibleGame:newVisibleGame
     }));
     console.log("After setState");
-    // this.identifyAdjacentTiles(row,col,game,this.state.visibleGame)
-    // console.log("After identify");
+
 
   }
 
+  /*--------------NOT USED---------------*/
   identifyAdjacentTiles(i,j,game,visibleGame){
+    if(j === null) return;
     console.log("identifyAdjacentTiles called with: i="+i+" j="+j);
-    for(let y = -1; y<2; y++){
-      for(let x = -1; x<2; x++){
-        console.log("x and y: ", x,y);
-        if(x === 0 && y === 0){
-          continue;
-        }
-        else if(i+x<0 || j+y<0){
-          continue;
-        }
-        else{
-          try {
-            if(game[i+x][j+y] !== '*'){
-              let modifiedRow = [...visibleGame[i+x]];
-              modifiedRow[j+y] = false;
-              let newVisibleGame = [...visibleGame];
-              newVisibleGame[i+x] = modifiedRow;
-              console.log("adjacent Modified",i+x,j+y);
-              this.setState({
-                ...this.state,
-                visibleGame:newVisibleGame
-              })
-              // this.identifyAdjacentTiles(i+x,j+y,game,this.state.visibleGame)
-            }
-            return;
-          } catch (e) {
-            // console.log("error: ",e);
-          }
-        }
+    [[-1,0],[0,1],[1,0],[0,-1]].map((el) => {
 
+      try {
+        if(game[i+el[0]][j+el[1]] !== '*'){
+          let modifiedRow = [...visibleGame[i+el[0]]];
+          modifiedRow[j+el[1]] = false;
+          let newVisibleGame = [...visibleGame];
+          newVisibleGame[i+el[0]] = modifiedRow;
+          console.log("adjacent Modified",i+el[0],j+el[1]);
+          this.setState({
+            ...this.state,
+            once:true,
+            visibleGame:newVisibleGame
+          })
+        }
+        // return;
+      } catch (e) {
+        console.log("Out of bounds\n-------------");
       }
-    }
 
+    })
   }
+  /*---------------------------------------*/
+
 
   createNewGame = async (gameConfig) => {
     if(gameConfig.rows*gameConfig.columns<gameConfig.mines){
@@ -116,17 +119,29 @@ class App extends Component {
       visibleGame:new Array(gameConfig.rows).fill(Array(gameConfig.columns).fill(true)),
     });
     console.log(this.state.game);
-    // console.log("this.state.visibleGame");
-    // console.log(this.state.visibleGame);
-    // console.log(obj);
+
   }
 
   componentDidMount(){
     console.log("Component reloaded");
     this.createNewGame(this.state.gameConfig);
 
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // console.log("1. prevState: ",prevState);
+    // console.log("2. prevState: ",prevState.click);
+    // if(this.state.click.x !== null){
+    //   console.log("3. Se actualizó");
+    // }
+    // this.identifyAdjacentTiles(this.state.click.x,this.state.click.y,this.state.game,this.state.visibleGame)
+    // }
 
   }
+  // componentWillUpdate(nextProps, nextState) {
+  //   console.log("4. nextProps: ",nextProps);
+  //   console.log("5. nextState: ",nextState);
+  // }
 
 
   render() {
@@ -152,6 +167,7 @@ class App extends Component {
                 click={this.handleClick}
                 gameConfig={this.state.gameConfig}
                 createNewGame={this.createNewGame}
+                lastClick={this.state.click}
                 >
 
                 </Row>
@@ -163,8 +179,6 @@ class App extends Component {
     );
   }
 }
-
-
 
 let createGame = (rows,columns,mines) => {
   return new Promise(
@@ -180,61 +194,4 @@ let createGame = (rows,columns,mines) => {
   )
 }
 
-function InputForm(props) {
-  return (
-    <form>
-      <label>
-        Rows:
-        {/* <input type="text" pattern="[0-9]*" value={props.gameConfig.rows} onChange={props.changeRows} /> */}
-        <input type="number" name="quantity" min="1" max="20" value={props.gameConfig.rows} onChange={props.changeRows} />
-      </label>
-      <label>
-        Columns:
-        <input type="number" name="quantity" min="1" max="20" value={props.gameConfig.columns} onChange={props.changeColumns} />
-      </label>
-      <label>
-        Mines:
-        <input type="number" name="quantity" min="1" max={props.gameConfig.rows*props.gameConfig.columns} value={props.gameConfig.mines} onChange={props.changeMines} />
-      </label>
-
-    </form>
-  );
-}
-
-
-
-let identifyAdjacentTiles2 = (i,j,game,visibleGame) => {
-  console.log("identifyAdjacentTiles called with: i="+i+" j="+j);
-  for(let y = -1; y<2; y++){
-    for(let x = -1; x<2; x++){
-      console.log("x and y: ", x,y);
-      if(x === 0 && y === 0){
-        continue;
-      }
-      else if(i+x<0 || j+y<0){
-        continue;
-      }
-      else{
-        try {
-          if(game[i+x][j+y] !== '*'){
-            let modifiedRow = [...visibleGame[i+x]];
-            modifiedRow[j+y] = false;
-            let newVisibleGame = [...visibleGame];
-            newVisibleGame[i+x] = modifiedRow;
-            console.log("adjacent Modified",i+x,j+y);
-            this.setState({
-              ...this.state,
-              visibleGame:newVisibleGame
-            })
-            // identifyAdjacentTiles(i+x,j+y,game,this.state.visibleGame)
-          }
-        } catch (e) {
-          // console.log("error: ",e);
-        }
-      }
-      return;
-    }
-  }
-
-}
 export default App;
