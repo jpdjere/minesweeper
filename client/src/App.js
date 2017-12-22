@@ -16,6 +16,7 @@ class App extends Component {
     this.handleRowChange = this.handleRowChange.bind(this);
     this.handleColumnChange = this.handleColumnChange.bind(this);
     this.handleMinesChange = this.handleMinesChange.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
   handleRowChange(event) {
@@ -42,27 +43,48 @@ class App extends Component {
     );
   }
 
+  handleClick(row,col,game,visibleGame) {
+    // this.setState.visibleGame[row][col] = this.state.game[row][col];
+    let newVisibleGame = visibleGame;
+    console.log("visibleGame",visibleGame);
+    console.log("newVisibleGame",newVisibleGame);
+    let newValue = game[row][col];
+    newVisibleGame[row][col] = newValue;
+    this.setState({
+      ...this.state,
+      visibleGame:newVisibleGame
+    })
+  }
+
   createNewGame = async (gameConfig) => {
-    // let newGame = await createGame(5,3,2);
+    if(gameConfig.rows*gameConfig.columns<gameConfig.mines){
+      alert("Mines should be less than tiles!");
+      return;
+    }
     let newGame = await createGame(gameConfig.rows,gameConfig.columns,gameConfig.mines);
-    this.setState({game:newGame.data});
+    this.setState({
+      game:newGame.data,
+      visibleGame:new Array(gameConfig.rows).fill(Array(gameConfig.columns).fill("-")),
+    });
+    console.log(this.state.game);
   }
 
   componentDidMount(){
     this.createNewGame(this.state.gameConfig);
+
   }
 
 
   render() {
     return (
       <div className="App">
-        <button onClick={() => this.createNewGame(this.state.gameConfig)}>Button</button>
         <InputForm gameConfig={this.state.gameConfig} changeRows={this.handleRowChange} changeColumns={this.handleColumnChange} changeMines={this.handleMinesChange}></InputForm>
+        <button onClick={() => this.createNewGame(this.state.gameConfig)}>Create new game!</button>
         <div className="game">
           <div className="game-board">
           {this.state.game &&
-            this.state.game.map((row,idx) => {
-              return <Row data={row} key={idx}></Row>
+            this.state.visibleGame.map((row,idx) => {
+              return <Row data={row} row={idx} key={idx} visibleGame={this.state.visibleGame} game={this.state.game} click={this.handleClick}></Row>
             })
           }
           </div>

@@ -13,7 +13,7 @@ class Row extends Component {
       <ol>
         {
           this.props.data.map((el,idx) => {
-            return <Square value={el} key={idx}></Square>
+            return <Square value={el} key={idx} visibleGame={this.props.visibleGame} game={this.props.game} row={this.props.row} col={idx} onClick={() => this.props.click(this.props.row,idx,this.props.game,this.props.visibleGame)}></Square>
           })
         }
       </ol>
